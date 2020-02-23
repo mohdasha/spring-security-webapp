@@ -16,6 +16,7 @@ public class User {
 	private String email;
 	private boolean verified;
 	private String securityPin;
+	private boolean totpEnabled;
 
 	public String getUserId() {
 		return userId;
@@ -68,6 +69,14 @@ public class User {
 
 	public void setSecurityPin(String securityPin) {
 		this.securityPin = securityPin;
+	}
+
+	public boolean isTotpEnabled() {
+		return totpEnabled;
+	}
+
+	public void setTotpEnabled(boolean totpEnabled) {
+		this.totpEnabled = totpEnabled;
 	}
 
 	@Override

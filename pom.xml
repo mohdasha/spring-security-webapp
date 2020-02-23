@@ -88,6 +88,16 @@
 			<artifactId>webjars-locator</artifactId>
 			<version>0.34</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.jboss.aerogear</groupId>-->
+<!--			<artifactId>aerogear-otp-java</artifactId>-->
+<!--			<version>1.0.0</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>com.warrenstrange</groupId>
+			<artifactId>googleauth</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>

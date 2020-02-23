@@ -1,7 +1,9 @@
 package com.mohdasha.security.config;
 
 import com.mohdasha.security.auth.AdditionalAuthDetailsSource;
+import com.mohdasha.security.model.Authorities;
 import com.mohdasha.security.service.NoSQLUserDetailsServiceImpl;
+import com.mohdasha.security.userdetails.AdditionalAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,14 +13,12 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 
 @Configuration
 public class AccountSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    NoSQLUserDetailsServiceImpl userDetailsService;
+    @Autowired private NoSQLUserDetailsServiceImpl userDetailsService;
+    @Autowired private AdditionalAuthenticationProvider additionalAuthenticationProvider;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -26,26 +26,12 @@ public class AccountSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/account/login").permitAll()
                     .antMatchers("/account/register").permitAll()
-                    .anyRequest().authenticated()
+                    .antMatchers("/totp/login","/totp/error").hasAuthority(Authorities.TOTP_AUTH_AUTHORITY)
+                    .anyRequest().hasRole(Authorities.ROLE_USER)
                 .and()
                     .formLogin()
                     .loginPage("/account/login").successForwardUrl("/account/home")
                     .authenticationDetailsSource(new AdditionalAuthDetailsSource());
-    }
-
-    public DigestAuthenticationFilter digestAuthenticationFilter() throws Exception {
-        DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
-        digestAuthenticationFilter.setAuthenticationEntryPoint(digestAuthenticationEntryPoint());
-        digestAuthenticationFilter.setUserDetailsService(userDetailsServiceBean());
-        return digestAuthenticationFilter;
-    }
-
-    private DigestAuthenticationEntryPoint digestAuthenticationEntryPoint() {
-        DigestAuthenticationEntryPoint digestAuthenticationEntryPoint = new DigestAuthenticationEntryPoint();
-        digestAuthenticationEntryPoint.setKey("abcde");
-        digestAuthenticationEntryPoint.setRealmName("account-digest-realm");
-
-        return digestAuthenticationEntryPoint;
     }
 
     @Override
@@ -55,12 +41,7 @@ public class AccountSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
-//        auth.inMemoryAuthentication()
-//                .passwordEncoder(NoOpPasswordEncoder.getInstance())
-//                .withUser("ashif")
-//                .password("ashif")
-//                .roles("USER");
+        auth.authenticationProvider(additionalAuthenticationProvider);
     }
 
     @Bean
